@@ -28,6 +28,26 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
 	add_flags_cxx("-D_XOPEN_SOURCE=600")
 endif()
 
+
+macro(set_exe_flags)
+	if (NOT MSVC)
+		if ("${CLANG_VERSION}" VERSION_GREATER 3.5)
+			include(CheckCXXCompilerFlag)
+			check_cxx_compiler_flag(-Wno-reserved-id-macro HAS_NO_RESERVED_ID_MACRO)
+			check_cxx_compiler_flag(-Wno-documentation-unknown-command HAS_NO_DOCUMENTATION_UNKNOWN)
+			if (HAS_NO_RESERVED_ID_MACRO)
+				# Use this flag to ignore error for a reserved macro problem in sqlite 3
+				add_flags_cxx("-Wno-reserved-id-macro")
+			endif()
+			if (HAS_NO_DOCUMENTATION_UNKNOWN)
+				# Ignore another problem in sqlite
+				add_flags_cxx("-Wno-documentation-unknown-command")
+			endif()
+		endif()
+	endif()
+endmacro()
+
+
 add_library(sqlite ${SOURCE})
 target_link_libraries(sqlite lua)
 
