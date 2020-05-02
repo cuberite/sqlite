@@ -1,8 +1,9 @@
+project (lsqlite)
 
-cmake_minimum_required (VERSION 2.6)
-project (sqlite)
-
-include_directories ("${PROJECT_SOURCE_DIR}/../")
+include_directories (
+	"${PROJECT_SOURCE_DIR}/../SQLiteCpp/sqlite3"
+	"${PROJECT_SOURCE_DIR}/.."
+)
 
 file(GLOB SOURCE
     "*.c"
@@ -28,9 +29,9 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
 	add_flags_cxx("-D_XOPEN_SOURCE=600")
 endif()
 
-add_library(sqlite ${SOURCE})
-target_link_libraries(sqlite lua)
+add_library(lsqlite ${SOURCE})
+target_link_libraries(lsqlite lua)
 
 if (UNIX)
-	target_link_libraries(sqlite ${DYNAMIC_LOADER})
+	target_link_libraries(lsqlite ${DYNAMIC_LOADER})
 endif()
