@@ -1,37 +1,19 @@
-project (lsqlite)
+cmake_minimum_required (VERSION 3.13)
+project (lsqlite C)
 
-include_directories (
-	"${PROJECT_SOURCE_DIR}/../SQLiteCpp/sqlite3"
-	"${PROJECT_SOURCE_DIR}/.."
-)
-
-file(GLOB SOURCE
-    "*.c"
-)
-
+add_library(lsqlite lsqlite3.c)
+target_link_libraries(lsqlite PUBLIC sqlite3 lua)
 
 # Lua is required as a DLL for LuaSQLite:
 if (WIN32)
-	add_definitions(-DLUA_BUILD_AS_DLL)
-endif()
-
-
-# add headers to MSVC project files:
-if (MSVC)
-	file(GLOB HEADERS "src/*.h")
-	list(REMOVE_ITEM SOURCE "${PROJECT_SOURCE_DIR}/src/lua.h" "${PROJECT_SOURCE_DIR}/src/luac.h")
-	set(SOURCE ${SOURCE} ${HEADERS})
-	source_group("Sources" FILES ${SOURCE})
+	target_compile_definitions(lsqlite PRIVATE LUA_BUILD_AS_DLL)
 endif()
 
 # FreeBSD requires us to define this to get POSIX 2001 standard
 if (${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
-	add_flags_cxx("-D_XOPEN_SOURCE=600")
+	target_compile_definitions(lsqlite PRIVATE _XOPEN_SOURCE=600)
 endif()
 
-add_library(lsqlite ${SOURCE})
-target_link_libraries(lsqlite lua)
-
 if (UNIX)
-	target_link_libraries(lsqlite ${DYNAMIC_LOADER})
+	target_link_libraries(lsqlite PRIVATE ${DYNAMIC_LOADER})
 endif()
